@@ -2,7 +2,6 @@ package com.mmall.service.impl;
 
 import com.mmall.common.Const;
 import com.mmall.common.ServerResponse;
-import com.mmall.common.TokenCache;
 import com.mmall.dao.UserMapper;
 import com.mmall.pojo.User;
 import com.mmall.service.IUserService;
@@ -101,7 +100,7 @@ public class UserServiceImpl implements IUserService {
             //正确！
             String forgetToken = UUID.randomUUID().toString();
 //            TokenCache.setKey(TokenCache.TOKEN_PREFIX + username, forgetToken);
-            RedisPoolUtil.setEx(TokenCache.TOKEN_PREFIX + username, forgetToken, 60 * 60 * 12);
+            RedisPoolUtil.setEx(Const.TOKEN_PREFIX + username, forgetToken, 60 * 60 * 12);
             return ServerResponse.createBySuccess(forgetToken);
         }
         return ServerResponse.createByErrorMessage("问题的答案错误！");
@@ -116,7 +115,7 @@ public class UserServiceImpl implements IUserService {
             return ServerResponse.createByErrorMessage("用户不存在！");
         }
 //        String token = TokenCache.getKey(TokenCache.TOKEN_PREFIX + username);
-        String token = RedisPoolUtil.get(TokenCache.TOKEN_PREFIX + username);
+        String token = RedisPoolUtil.get(Const.TOKEN_PREFIX + username);
         if (StringUtils.isBlank(token)) {
             return ServerResponse.createByErrorMessage("token 无效或者过期！");
         }
@@ -140,7 +139,7 @@ public class UserServiceImpl implements IUserService {
         }
         user.setPassword(MD5Util.MD5EncodeUtf8(passwordNew));
         int updateCount = userMapper.updateByPrimaryKeySelective(user);
-        if(updateCount > 0) {
+        if (updateCount > 0) {
             return ServerResponse.createBySuccessMessage("密码更新成功！");
         } else {
             return ServerResponse.createByErrorMessage("密码更新失败！");
@@ -181,6 +180,7 @@ public class UserServiceImpl implements IUserService {
 
     /**
      * 校验是否是管理员
+     *
      * @param user
      * @return
      */
